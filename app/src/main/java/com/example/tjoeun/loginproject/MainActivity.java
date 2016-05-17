@@ -69,22 +69,12 @@ public class MainActivity extends AppCompatActivity {
         mOauthExpires = (TextView) findViewById(R.id.oauth_expires);
         mOauthTokenType = (TextView) findViewById(R.id.oauth_type);
         mOAuthState = (TextView) findViewById(R.id.oauth_state);
-
     }
-
 
     @Override
     protected void onResume() {
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         super.onResume();
-
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-
-        mOAuthLoginModule.getInstance().logout(mContext);
     }
 
     @Override
@@ -113,34 +103,22 @@ public class MainActivity extends AppCompatActivity {
                 mOAuthState.setText("인증상태: "+mOAuthLoginModule.getState(mContext).toString());
                 Toast.makeText(getApplicationContext(), "로그인 성공" ,Toast.LENGTH_SHORT).show();
 
-
                 // 토큰이 있는 상태로 버튼을 보여주지 않음.
                 if (OAuthLoginState.OK.equals(OAuthLogin.getInstance().getState(mContext))) {
                     mOAuthLoginButton.setVisibility(View.INVISIBLE);
+                    new RequestApiTask().execute();
+
                 } else {
                     mOAuthLoginButton.setVisibility(View.VISIBLE);
                 }
 
-                new RequestApiTask().execute();
-
-                AlertDialog.Builder getUser = new AlertDialog.Builder(mContext);
-                getUser.setMessage("email : "+userInfo.getEmail()+"\n"+"닉네임 : "+userInfo.getNickname()+"이름 : "+userInfo.getName()+
-                        "나이 : "+userInfo.getAge()+"\n"+"생일 : "+userInfo.getBirthday()+"성별 : "+userInfo.getGender()+
-                        "Enc_id : "+userInfo.getEnc_id()+"\n"+"프로필 이미지 : "+userInfo.getProfile_image()+"아이디 : "+userInfo.getId());
-
-                /*
-                RequestApiTask requestApiTask = new RequestApiTask();
-                String requestApi = requestApiTask.doInBackground();
-                requestApiTask.onPostExecute(requestApi);*/
-                //Toast.makeText(getApplicationContext(), "결과는 : "+requestApi, Toast.LENGTH_LONG).show();
-            } else {
+            } else {  //로그인이 실패했을 경우
                 String errorCode = mOAuthLoginModule.getLastErrorCode(mContext).getCode();
                 String errorDesc = mOAuthLoginModule.getLastErrorDesc(mContext);
 
-                Toast.makeText(getApplicationContext(), "로그인 실패", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "로그인 실패 \n errorCode :"+errorCode+"\n errorDesc :"+errorDesc, Toast.LENGTH_SHORT).show();
             }
         };
-
     };
 
     private class DeleteTokenTask extends AsyncTask<Void, Void, Void> {
@@ -191,6 +169,12 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("myLog", "email " + userInfo.getEmail());
                 Log.d("myLog", "name " + userInfo.getName());
                 Log.d("myLog", "nickname " + userInfo.getNickname());
+
+                AlertDialog.Builder getUser = new AlertDialog.Builder(mContext);
+                getUser.setMessage("email : "+userInfo.getEmail()+"\n"+"닉네임 : "+userInfo.getNickname()+"이름 : "+userInfo.getName()+
+                        "나이 : "+userInfo.getAge()+"\n"+"생일 : "+userInfo.getBirthday()+"성별 : "+userInfo.getGender()+
+                        "Enc_id : "+userInfo.getEnc_id()+"\n"+"프로필 이미지 : "+userInfo.getProfile_image()+"아이디 : "+userInfo.getId());
+                getUser.show();
             }
         }
     }
